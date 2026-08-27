@@ -1,0 +1,42 @@
+{
+  "component": "gauge",
+  "version": "0.1.0",
+  "intent": "A compact meter for one bounded quantity — quota consumed, disk used, rate limit spent, error budget burnt. A framed box whose block-end edge IS a 4px bar graph: 1px border on the inline sides and the block start, a track plus a partial fill along the bottom. The number is printed above the bar, so the same fact is carried twice — as text and as a length. Value is the --value custom property (0..1) set inline, the same contract .ring and .slider-thin use. Put the gauge INSIDE a <td>; never put it on the <td>, because .table sets border-collapse: collapse and a cell's borders are shared with its neighbours and resolved by the table, not the cell. For progress toward completion use .progress or .ring; for a status word use .lozenge.",
+  "root": { "selector": ".gauge", "element": ["span", "div"], "requiredClasses": ["gauge"] },
+  "variants": {
+    "fill": {
+      "classes": ["gauge-neutral", "gauge-success", "gauge-warning", "gauge-danger"],
+      "required": false,
+      "exclusive": true
+    },
+    "state": {
+      "classes": ["gauge-unknown"],
+      "required": false,
+      "exclusive": true
+    }
+  },
+  "modifiers": [],
+  "structure": [
+    { "selector": ".gauge-value", "required": true, "description": "The reading as text (e.g. \"82%\"). Mandatory on every gauge, including .gauge-unknown, where it holds an em dash. The number — not the colour — carries the meaning, so the bar and its hue are redundant encodings on top of text that is always present. Tabular numerals and inline-end alignment come from .gauge, so a column of readings compares digit by digit." },
+    { "selector": ".gauge-track", "required": false, "description": "The 4px strip along the block-end edge. Required on every MEASURED gauge and forbidden on .gauge-unknown, which is why it is not marked required here. Thickness is --gauge-bar-size (default 4px); raise it on larger surfaces." },
+    { "selector": ".gauge-track > .gauge-fill", "required": false, "description": "The coloured part of the bar, sized by --value via calc(clamp(0, var(--value, 0), 1) * 100%). It is a real element, not a gradient or a pseudo-element: a flex item sized with inline-size pins itself to the inline start under both dir=\"ltr\" and dir=\"rtl\" with no direction-specific CSS, and ::before/::after stay free for consumers. Out-of-range and malformed values render EMPTY, never full." },
+    { "selector": ".gauge-limit", "required": false, "description": "Optional 1px threshold tick at --limit (0..1), drawn 2px taller than the bar so it is read against the surface rather than against the fill whose threshold it marks. The only severity signal in the component that uses no colour at all. Omit the element to draw nothing — there is no off sentinel." }
+  ],
+  "aria": [
+    { "on": ".gauge", "attr": "role", "required": true },
+    { "on": ".gauge", "attr": "aria-valuenow", "required": true, "when": "The gauge is a measured reading (any state except .gauge-unknown). Use role=\"meter\" with aria-valuenow on 0..100 — the same fact as --value (0..1) in a second scale, exactly the split specs/ring.json describes. Substitute role=\"progressbar\" if your audience uses assistive tech predating ARIA 1.2. On .gauge-unknown use role=\"img\" with aria-label and NO aria-valuenow: a meter must claim a value, and any number there would be a fabricated observation." },
+    { "on": ".gauge", "attr": "aria-label", "required": false, "when": "No visible text names the quantity — give the gauge aria-label, or aria-labelledby pointing at the column header. The role does not infer a name from the .gauge-value text." },
+    { "on": ".gauge", "attr": "aria-valuetext", "required": false, "when": "The reading falls in a named severity band. aria-valuetext=\"82% used, elevated\" gets the band, not just the number, to assistive tech, so a listener does not have to know where the thresholds sit." }
+  ],
+  "nesting": {
+    "allowedIn": ["table cells", ".card-body", ".list-item-trailing", "stat tiles", "definition lists"],
+    "disallowed": [".gauge", ".btn"]
+  },
+  "a11yNotes": "The .gauge-value number is required markup, so colour is never the only carrier of meaning (WCAG 1.4.1). Bar LENGTH is the primary channel and is monotone in the value; hue is a redundant accelerator, and the ramp is deliberately NOT monotone in luminance (amber is lighter than both the neutral and the red), so a grayscale or colour-blind reader must get the ordering from length and the number, not from tone. Because the value is fully available as adjacent text the bar is not required to understand the content, which is what exempts it from 1.4.11 non-text contrast — and it needs that exemption: measured against --lz-sys-track over the scheme × dial sweep, the neutral fill never drops below 3.25:1, but at the DEFAULT dial the warning fill is 1.79:1 in light and the success and danger fills are 2.28:1 in dark, falling to 1.24:1 and 1.31:1 respectively at dial +1. No single track colour can clear 3:1 against all four fills at once — amber and dark gray sit on opposite sides of any track you pick — so this is a property of the four-colour scale, not a bug to be tuned out, and it hits .progress-bar and .ring identically. tokens/pairs.json guards only the neutral fill, which is the one a consumer gets without asking for a severity; the coloured fills are deliberately unguarded because there is no threshold they could all meet. Absence is not zero: .gauge-unknown replaces the 4px band with a 1px rule and dashes the whole frame — geometry and texture, both real borders, so the distinction survives grayscale, print and forced colours — the track and fill are backgrounds and deliberately do NOT print (see the note in _gauge.scss: forcing them with print-color-adjust would print a dark-themed reading inverted on white paper), so on paper the number is the reading — while a genuine measured 0% still draws a full-width solid track with an empty fill. Name every gauge; role=\"meter\" does not take its name from child text. Note that the visible number is also read as element content, so a screen reader may announce it twice.",
+  "examples": [
+    "<span class=\"gauge\" style=\"--value: 0.41\" role=\"meter\" aria-valuenow=\"41\" aria-valuetext=\"41% used, nominal\" aria-label=\"Session quota used\"><span class=\"gauge-value\">41%</span><span class=\"gauge-track\"><span class=\"gauge-fill\"></span></span></span>",
+    "<span class=\"gauge gauge-warning\" style=\"--value: 0.82\" role=\"meter\" aria-valuenow=\"82\" aria-valuetext=\"82% used, elevated\" aria-label=\"Day quota used\"><span class=\"gauge-value\">82%</span><span class=\"gauge-track\"><span class=\"gauge-fill\"></span></span><span class=\"gauge-limit\" style=\"--limit: 0.9\"></span></span>",
+    "<span class=\"gauge gauge-unknown\" role=\"img\" aria-label=\"Week quota: not observed\"><span class=\"gauge-value\" aria-hidden=\"true\">&mdash;</span></span>"
+  ],
+  "subcomponents": []
+}
