@@ -1,5 +1,9 @@
 node_modules/
-dist/
+# dist/ IS COMMITTED. This library is consumed as a git dependency
+# (factory's web app pins it by commit), and a git consumer gets only
+# tracked files - no npm tarball, and bun does not run a git dep's
+# prepare script - so an ignored dist/ resolves to nothing. Rebuild and
+# commit dist/ whenever src/ changes, or publish to npm and drop this.
 dist-demo/
 *.local
 .DS_Store
