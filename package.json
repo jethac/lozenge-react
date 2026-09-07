@@ -1,7 +1,7 @@
 {
   "name": "lozenge-react",
   "version": "0.1.0",
-  "description": "React bindings for Lozenge — a Jira-flavoured design system with runtime theme axes: continuous contrast dial, parametric accent, glass materials.",
+  "description": "React bindings for Lozenge \u2014 a Jira-flavoured design system with runtime theme axes: continuous contrast dial, parametric accent, glass materials.",
   "type": "module",
   "license": "MIT",
   "repository": "github:jethac/lozenge-react",
@@ -25,7 +25,8 @@
     "build": "vite build && node scripts/copy-css.mjs",
     "build:demo": "vite build --config vite.demo.config.ts",
     "test": "vitest run",
-    "lint": "node scripts/lozenge-lint.mjs"
+    "lint": "node scripts/lozenge-lint.mjs",
+    "prepare": "vite build && node scripts/copy-css.mjs"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
